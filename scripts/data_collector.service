@@ -1,0 +1,14 @@
+[Unit]
+Description="htrade data collector"
+Documentation="https://github.com/redmeros/htrade"
+After=postgresql.service
+
+[Service]
+ExecStart=/opt/htrade/dataCollector
+PIDFile=/run/htrade_collector.pid
+ExecStop=/bin/kill -s QUIT $MAINPID
+PrivateTmp=true
+Type=notify
+
+[Install]
+WantedBy=multi-user.target
