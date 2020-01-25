@@ -18,3 +18,20 @@ letter in the alphabet
 Small disclaimer - my code is terrible I know, I could make this repo private because I think nobody will use it. It will never be stable it will never be as good as open source should be. But I'm using a lot of job of many people so I don't know why I should not share.
 
 Feel free to pull request, or comment I'll try my best to handle everything.
+
+## Building
+
+```shell
+$ make build
+```
+
+the whole output should be in dist directory
+
+## Installing
+
+```shell
+$ sudo make install
+```
+
+This should copy dist file into /opt/htrade directory and then
+initialize systemd script
