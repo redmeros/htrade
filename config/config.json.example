@@ -1,0 +1,14 @@
+{
+    "oanda": {
+        "url": "https://api-fxpractice.oanda.com",
+        "token": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "account_id": "xxx-xxx-xxxxxxx-xxx"
+    },
+    "db": {
+        "user": "htrade",
+        "password": "htrade",
+        "host": "localhost",
+        "port": 5432,
+        "name": "htrade"
+    }
+}
