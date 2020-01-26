@@ -25,7 +25,7 @@ func GetDB() (*gorm.DB, error) {
 
 // GetDb zwraca wskaznik do bazy danych
 func GetDb(config *config.Config) (*gorm.DB, error) {
-	log := logging.NewLogger()
+	log := logging.NewLogger("database.log")
 	if db == nil {
 		log.Debugf("Creating new db object with: %s", config.Db.GetPgConnString())
 		var err error
@@ -34,14 +34,18 @@ func GetDb(config *config.Config) (*gorm.DB, error) {
 			return nil, err
 		}
 		log.Debug("Migrations...")
-		log.Debug("Dropping tables...")
+		// log.Debug("Dropping tables...")
 		// db.DropTableIfExists(&models.Candle{}, &models.Pair{})
-		db.DropTableIfExists(&models.Candle{})
+		// db.DropTableIfExists(&models.Candle{})
 		if db.Error != nil {
 			return nil, db.Error
 		}
 		log.Debug("Automigrating...")
-		db.AutoMigrate(&models.Pair{}, &models.Candle{})
+		db.AutoMigrate(
+			&models.Pair{},
+			&models.Candle{},
+			&models.User{},
+		)
 		if db.Error != nil {
 			return nil, db.Error
 		}

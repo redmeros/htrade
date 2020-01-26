@@ -8,11 +8,13 @@ import (
 var logger log.Logger = nil
 
 // NewLogger zwraca nowy logger
-func NewLogger() log.Logger {
+func NewLogger(filepath string) log.Logger {
 	if logger != nil {
 		return logger
 	}
-	filepath := "dataCollector.log"
+	if filepath == "" {
+		filepath = "dataCollector.log"
+	}
 	fileMode := os.O_APPEND
 
 	fileHandler, err := log.NewFileHandler(filepath, fileMode, 0)

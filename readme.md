@@ -22,7 +22,7 @@ Feel free to pull request, or comment I'll try my best to handle everything.
 ## Building
 
 ```shell
-$ make build
+make build
 ```
 
 the whole output should be in dist directory
@@ -30,7 +30,7 @@ the whole output should be in dist directory
 ## Installing
 
 ```shell
-$ sudo make install
+sudo make install
 ```
 
 This should copy dist file into /opt/htrade directory and then
