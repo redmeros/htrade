@@ -10,6 +10,7 @@ import (
 	"github.com/redmeros/htrade/config"
 	"github.com/redmeros/htrade/internal/db"
 	"github.com/redmeros/htrade/internal/logging"
+	"github.com/redmeros/htrade/internal/pid"
 	"github.com/redmeros/htrade/models"
 	"github.com/redmeros/htrade/pkg/oanda"
 )
@@ -17,6 +18,7 @@ import (
 func tryResloveConfig() (string, error) {
 	files := []string{
 		"config.json",
+		"../config.json",
 		"../../config/config.json",
 	}
 	for _, filename := range files {
@@ -32,7 +34,15 @@ func tryResloveConfig() (string, error) {
 }
 
 func main() {
-	logger := logging.NewLogger()
+	pid := new(pid.PID)
+	if err := pid.Save(); err != nil {
+		msg := fmt.Sprintf("Cannot create pid file: %s\n\r", err.Error())
+		panic(msg)
+	}
+	fmt.Printf("Created pid file: %s\n\r", pid.Path())
+	defer pid.Close()
+
+	logger := logging.NewLogger("dataCollector.log")
 	defer logging.Shutdown()
 	var configArgIdx = -1
 	var configFileName string
@@ -77,6 +87,7 @@ func main() {
 				if err == nil {
 					d.Close()
 				}
+				pid.Close()
 				os.Exit(0)
 			}
 		}
@@ -89,7 +100,7 @@ func main() {
 }
 
 func overallDo(pairs []*models.Pair, config *config.Config) {
-	logger := logging.NewLogger()
+	logger := logging.NewLogger("dataCollector.log")
 	var wg sync.WaitGroup
 	for _, pair := range pairs {
 		wg.Add(1)
@@ -102,7 +113,7 @@ func overallDo(pairs []*models.Pair, config *config.Config) {
 
 func readPairs() ([]*models.Pair, error) {
 	mdb, err := db.GetDB()
-	logger := logging.NewLogger()
+	logger := logging.NewLogger("dataCollector.log")
 	if err != nil {
 		logger.Errorf("Cannot get pairs: %s", err.Error())
 		return nil, err
@@ -123,7 +134,7 @@ func doJob(cfg *config.Config, pair *models.Pair, wg *sync.WaitGroup) error {
 	params["granularity"] = "M5"
 
 	oanda := oanda.NewOanda(&cfg.Oanda)
-	logger := logging.NewLogger()
+	logger := logging.NewLogger("dataCollector.log")
 	logger.Infof("Starting job for %s", pair.Name())
 
 	candle, err := oanda.GetCandles(pair.NameWithSep("_"), params)
