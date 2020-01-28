@@ -11,6 +11,8 @@ import (
 	wmodels "github.com/redmeros/htrade/web/models"
 )
 
+var loginOffset = time.Minute * 60
+
 // Login loguje uzytkownika
 // tzn podpisuje mu token jwt
 func Login(c *gin.Context) {
@@ -48,7 +50,7 @@ func Login(c *gin.Context) {
 
 	secret := []byte(cfg.Web.Secret)
 	issuedTime := time.Now()
-	expirationTime := issuedTime.Add(5 * time.Minute)
+	expirationTime := issuedTime.Add(loginOffset)
 	claims := &wmodels.Claims{
 		Username: dbuser.Username,
 		StandardClaims: jwt.StandardClaims{
@@ -98,7 +100,7 @@ func Refresh(c *gin.Context) {
 
 	secret := []byte(cfg.Web.Secret)
 	issuedTime := time.Now()
-	expirationTime := issuedTime.Add(5 * time.Minute)
+	expirationTime := issuedTime.Add(loginOffset)
 	claims := &wmodels.Claims{
 		Username: user.Username,
 		StandardClaims: jwt.StandardClaims{
@@ -132,6 +134,9 @@ func SignUp(c *gin.Context) {
 	if err != nil {
 		h.Bad(c, err.Error(), 500)
 		return
+	}
+	if cfg.Web.SignupBlocked {
+		h.Bad(c, "Signup blocked by admin", 403)
 	}
 	json.HashPass(cfg.Web.Secret)
 	db, err := GetDB(c)

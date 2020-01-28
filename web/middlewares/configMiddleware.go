@@ -16,7 +16,8 @@ func init() {
 
 	c, err := config.LoadConfig(filename)
 	if err != nil {
-		panic("Cannot read config from middleware")
+		panic(err)
+		// panic("Cannot read config from middleware")
 	}
 	cfg = c
 }

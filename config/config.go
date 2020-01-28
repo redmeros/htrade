@@ -1,10 +1,10 @@
 package config
 
-import "io/ioutil"
-
-import "encoding/json"
-
-import "fmt"
+import (
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+)
 
 // Oanda zawiera konfiguracje danych oandy
 type Oanda struct {
@@ -31,7 +31,27 @@ type DB struct {
 // GetPgConnString zwraca connecction string
 // obslugiwany przez gorm dla bazy postgres
 func (c *DB) GetPgConnString() string {
-	return fmt.Sprintf("host=%s user=%s dbname=%s password=%s", c.Host, c.User, c.Name, c.Password)
+	connstring := ""
+	if len(c.User) != 0 {
+		connstring += fmt.Sprintf("user=%s", c.User)
+	}
+
+	if len(c.Password) != 0 {
+		connstring += fmt.Sprintf(" password=%s", c.Password)
+	}
+
+	if len(c.Host) != 0 {
+		connstring += fmt.Sprintf(" host=%s", c.Host)
+	}
+
+	if c.Port != 0 {
+		connstring += fmt.Sprintf(" port=%d", c.Port)
+	}
+	if len(c.Name) != 0 {
+		connstring += fmt.Sprintf(" dbname=%s", c.Name)
+	}
+
+	return connstring
 }
 
 // WebConfig zawiera konfiguracje dla backendu
@@ -39,6 +59,7 @@ type WebConfig struct {
 	BindingAddress string `json:"binding_address"`
 	BindingPort    string `json:"binding_port"`
 	Secret         string `json:"secret"`
+	SignupBlocked  bool   `json:"signup_blocked"`
 }
 
 // FullAddress zwraca adres przekazywany

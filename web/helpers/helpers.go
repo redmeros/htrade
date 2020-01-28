@@ -15,11 +15,20 @@ func BadRequest(c *gin.Context, message string) {
 	c.JSON(http.StatusBadRequest, gin.H{"error": message})
 }
 
+// Badf to to samo co BAD ale z obsluga "f" czyli formatowania
+func Badf(c *gin.Context, message string, status int, a ...interface{}) {
+	c.JSON(status, gin.H{
+		"error": fmt.Sprintf(message, a),
+	})
+	c.Abort()
+}
+
 // Bad jest helperem/skrotem
 // zapisuje status i zwraca json
 // "error": "message"
 func Bad(c *gin.Context, message string, status int) {
 	c.JSON(status, gin.H{"error": message})
+	c.Abort()
 }
 
 // TryResloveConfig probuje znalezc

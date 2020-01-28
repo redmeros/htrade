@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/signal"
 	"sync"
+	"syscall"
 	"time"
 
 	"github.com/redmeros/htrade/config"
@@ -15,11 +16,18 @@ import (
 	"github.com/redmeros/htrade/pkg/oanda"
 )
 
+var mtx = &sync.Mutex{}
+var cont = true
+var logger = logging.NewLogger("dataCollector.log")
+var pidfile = new(pid.PID)
+
 func tryResloveConfig() (string, error) {
 	files := []string{
 		"config.json",
 		"../config.json",
 		"../../config/config.json",
+		"../dist/config.json",
+		"dist/config.json",
 	}
 	for _, filename := range files {
 		info, err := os.Stat(filename)
@@ -33,17 +41,39 @@ func tryResloveConfig() (string, error) {
 	return "", fmt.Errorf("Żaden ze standardowych plikow nie istnieje")
 }
 
+func catchSignals(ticker *time.Ticker) {
+	mtx.Lock()
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, syscall.SIGINT)
+	s := <-c
+	cont = false
+	mtx.Unlock()
+	logger.Infof("Got %s Signal - gracefully shutdown", s)
+	result := 0
+	if err := pidfile.Close(); err != nil {
+		logger.Error(err)
+		result++
+	}
+	logger.Info("Pidfile removed")
+	logging.Shutdown()
+	logger.Info("Logger closed")
+	os.Exit(result)
+}
+
 func main() {
-	pid := new(pid.PID)
-	if err := pid.Save(); err != nil {
+	os.Setenv("HTRADE_DEV", "TRUE")
+	if os.Getenv("HTRADE_DEV") == "TRUE" {
+		os.Chdir("../../dist")
+	}
+
+	if err := pidfile.Save(); err != nil {
 		msg := fmt.Sprintf("Cannot create pid file: %s\n\r", err.Error())
 		panic(msg)
 	}
-	fmt.Printf("Created pid file: %s\n\r", pid.Path())
-	defer pid.Close()
-
-	logger := logging.NewLogger("dataCollector.log")
+	fmt.Printf("Created pid file: %s\n\r", pidfile.Path())
+	defer pidfile.Close()
 	defer logging.Shutdown()
+
 	var configArgIdx = -1
 	var configFileName string
 	for i, el := range os.Args {
@@ -57,6 +87,7 @@ func main() {
 		resolvedConfigFileName, err := tryResloveConfig()
 		if err != nil {
 			logger.Fatal("Nie znalazłem żadnego pliku config")
+			os.Exit(1)
 		}
 		configFileName = resolvedConfigFileName
 	}
@@ -71,36 +102,37 @@ func main() {
 		return
 	}
 
-	pairs, err := readPairs()
+	// pairs, err := readPairs()
 
-	if err != nil {
-		logger.Fatalf("Cannot read pairs: %s", err.Error())
-	}
-
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt)
-	go func() {
-		for sig := range c {
-			if sig == os.Interrupt {
-				logger.Info("ctrl+c has been discovered quiting")
-				d, err := db.GetDB()
-				if err == nil {
-					d.Close()
-				}
-				pid.Close()
-				os.Exit(0)
-			}
-		}
-	}()
+	// if err != nil {
+	// 	logger.Fatalf("Cannot read pairs: %s", err.Error())
+	// }
 
 	d := time.Second * 60 * 5
-	for range time.Tick(d) {
+	ticker := time.NewTicker(d)
+	defer ticker.Stop()
+
+	go catchSignals(ticker)
+
+	if pairs, err := readPairs(); err == nil {
 		overallDo(pairs, config)
+	}
+
+	for range ticker.C {
+		if cont == false {
+			return
+		}
+		if pairs, err := readPairs(); err == nil {
+			overallDo(pairs, config)
+		} else {
+			logger.Fatalf("Cannot read pairs %s", err.Error())
+			return
+		}
+
 	}
 }
 
 func overallDo(pairs []*models.Pair, config *config.Config) {
-	logger := logging.NewLogger("dataCollector.log")
 	var wg sync.WaitGroup
 	for _, pair := range pairs {
 		wg.Add(1)
@@ -113,7 +145,7 @@ func overallDo(pairs []*models.Pair, config *config.Config) {
 
 func readPairs() ([]*models.Pair, error) {
 	mdb, err := db.GetDB()
-	logger := logging.NewLogger("dataCollector.log")
+
 	if err != nil {
 		logger.Errorf("Cannot get pairs: %s", err.Error())
 		return nil, err
@@ -134,7 +166,6 @@ func doJob(cfg *config.Config, pair *models.Pair, wg *sync.WaitGroup) error {
 	params["granularity"] = "M5"
 
 	oanda := oanda.NewOanda(&cfg.Oanda)
-	logger := logging.NewLogger("dataCollector.log")
 	logger.Infof("Starting job for %s", pair.Name())
 
 	candle, err := oanda.GetCandles(pair.NameWithSep("_"), params)
@@ -158,6 +189,9 @@ func doJob(cfg *config.Config, pair *models.Pair, wg *sync.WaitGroup) error {
 
 	tx := mdb.Begin()
 	for _, c := range mcs {
+		if c == nil {
+			continue
+		}
 		if err := tx.Create(c).Error; err != nil {
 			logger.Errorf("Error during updating db: %s", err.Error())
 			tx.Rollback()
