@@ -64,7 +64,7 @@ func main() {
 	r := gin.Default()
 	r.Use(middlewares.ConfigWriterMiddleware())
 	r.Use(middlewares.DbMiddleware(cfg))
-
+	r.Use(middlewares.CORSMiddleware())
 	r.GET("/ping", func(c *gin.Context) {
 
 	})

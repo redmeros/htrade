@@ -10,6 +10,8 @@ import (
 	"strings"
 )
 
+// AuthMiddleware jest guardianem
+// dla autoryzowanych uzytkownikow (lub nie)
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		header := c.GetHeader("Authorization")
