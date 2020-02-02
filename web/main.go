@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
 	"github.com/redmeros/htrade/config"
 	"github.com/redmeros/htrade/internal/logging"
@@ -65,9 +66,7 @@ func main() {
 	r.Use(middlewares.ConfigWriterMiddleware())
 	r.Use(middlewares.DbMiddleware(cfg))
 	r.Use(middlewares.CORSMiddleware())
-	r.GET("/ping", func(c *gin.Context) {
-
-	})
+	r.Use(gzip.Gzip(gzip.DefaultCompression))
 
 	setRouting(r)
 

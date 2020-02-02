@@ -23,17 +23,23 @@ func setRouting(router *gin.Engine) {
 
 		dataCollector := authorized.Group("/data_collector")
 		{
-			dataCollector.GET("/", controllers.CollectorStatus)
-			dataCollector.POST("/", controllers.CollectorStart)
-			dataCollector.DELETE("/", controllers.CollectorStop)
+			dataCollector.GET("", controllers.CollectorStatus)
+			dataCollector.POST("", controllers.CollectorStart)
+			dataCollector.DELETE("", controllers.CollectorStop)
 		}
 
 		pairs := authorized.Group("/pairs")
 		{
 			pairs.GET("/:name", data.GetPairByName)
 			pairs.DELETE("/:id", data.DeletePair)
-			pairs.GET("/", data.GetPairs)
-			pairs.POST("/", data.NewPair)
+			pairs.GET("", data.GetPairs)
+			pairs.POST("", data.NewPair)
+		}
+
+		candles := authorized.Group("/candles")
+		{
+			candles.GET("", data.GetCandles)
+			candles.GET("/data_range", data.GetDataRange)
 		}
 	}
 }

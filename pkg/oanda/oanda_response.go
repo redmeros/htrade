@@ -56,7 +56,8 @@ func (o *CandleResponse) ToCandle(pair *models.Pair) ([]*models.Candle, error) {
 		if err != nil {
 			return nil, fmt.Errorf("Cannot parse time: %s", ocandle.Time)
 		}
-		c.Time = t
+
+		c.Time = models.ITime(t)
 		c.Pair = *curPair
 		c.PairID = curPair.ID
 		c.Granularity = o.Granularity

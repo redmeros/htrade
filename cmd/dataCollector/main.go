@@ -197,7 +197,7 @@ func doJob(cfg *config.Config, pair *models.Pair, wg *sync.WaitGroup) error {
 			tx.Rollback()
 			return err
 		}
-		logger.Infof("Created row for %s, at %s", c.Pair.Name(), c.Time.String())
+		logger.Infof("Created row for %s, at %s", c.Pair.Name(), time.Time(c.Time).String())
 	}
 	tx.Commit()
 	return nil
