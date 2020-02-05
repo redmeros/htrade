@@ -3,6 +3,8 @@ package models
 import (
 	"strconv"
 	"time"
+
+	"github.com/jinzhu/gorm"
 )
 
 // ITime jest typem ktory pozwala podmienic zachowanie sie time.Time
@@ -28,15 +30,27 @@ type Candle struct {
 	CloseBid    float64 `json:"close_bid"`
 }
 
+// LowHigh zwraca zwykłego tupla z low i z high
+func (c *Candle) LowHigh(priceType string) (float64, float64) {
+	switch priceType {
+	case "bid":
+		return c.LowBid, c.HighAsk
+	case "ask":
+		return c.LowAsk, c.LowBid
+	default:
+		return 0, 0
+	}
+}
+
 // MarshalJSON konwertuje date na unix timestamp
 func (t ITime) MarshalJSON() ([]byte, error) {
 	return []byte(strconv.FormatInt(time.Time(t).Unix(), 10)), nil
 }
 
-func ParseITime(format string, value string) (ITime, error) {
-	t, err := time.Parse(time.RFC3339, value)
-	return ITime(t), err
-}
+// func ParseITime(format string, value string) (ITime, error) {
+// 	t, err := time.Parse(time.RFC3339, value)
+// 	return ITime(t), err
+// }
 
 // UnmarshalJSON konwertujez unix timestamp do daty
 func (t *ITime) UnmarshalJSON(s []byte) (err error) {
@@ -47,4 +61,16 @@ func (t *ITime) UnmarshalJSON(s []byte) (err error) {
 	}
 	*(*time.Time)(t) = time.Unix(q, 0)
 	return nil
+}
+
+// GetCandlesByPairName zwraca swieczki po nazwie - wszystkie
+func GetCandlesByPairName(db *gorm.DB, pair string) ([]Candle, error) {
+	var candles []Candle
+	q := db.Joins("LEFT JOIN  pairs ON candles.pair_id = pairs.id")
+	q = q.Where("CONCAT(pairs.major, pairs.minor) = ?", pair)
+	q = q.Order("time")
+	if err := q.Find(&candles).Error; err != nil {
+		return nil, err
+	}
+	return candles, nil
 }

@@ -8,6 +8,7 @@ require (
 	github.com/azer/yolo v0.0.0-20180819171155-df2a2bdacdd0 // indirect
 	github.com/davecgh/go-spew v1.1.1
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
+	github.com/elliotchance/orderedmap v1.2.0
 	github.com/fsnotify/fsnotify v1.4.7 // indirect
 	github.com/gin-contrib/gzip v0.0.1
 	github.com/gin-gonic/gin v1.5.0

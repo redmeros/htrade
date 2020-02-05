@@ -14,6 +14,10 @@ build_web:
 	@echo "Building web server..."
 	go build -o $(DISTDIR)/htrade_web web/main.go web/routing.go
 
+build_tester:
+	@echo "Building tester..."
+	go build -o ${DISTDIR}/htrade_tester cmd/tester/main.go
+
 clean:
 	@echo "Cleaning dist dir: $(DISTDIR)"
 	rm -v -f -r $(DISTDIR)/
