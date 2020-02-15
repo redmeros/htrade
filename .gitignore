@@ -54,3 +54,4 @@
 dist/
 *.log
 /config/config.json
+config.json

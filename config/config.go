@@ -4,6 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"os"
+	"path"
+	"strings"
 )
 
 // Oanda zawiera konfiguracje danych oandy
@@ -89,4 +92,47 @@ func LoadConfig(filename string) (*Config, error) {
 		return nil, err
 	}
 	return &c, nil
+}
+
+func fileExists(fname string) bool {
+	info, err := os.Stat(fname)
+	if os.IsNotExist(err) {
+		return false
+	}
+	return !info.IsDir()
+}
+
+func TryLoad() (*Config, error) {
+	path := TryResolveConfigPath()
+	return LoadConfig(path)
+}
+
+func TryResolveConfigPath() string {
+	cwd, err := os.Getwd()
+	if err != nil {
+		return ""
+	}
+
+	// filename := "config.json"
+	segments := strings.Split(cwd, "/")
+	pathsToCheck := make([]string, len(segments))
+	for i, seg := range segments {
+		if i != 0 {
+			pathsToCheck[i] = path.Join(pathsToCheck[i-1], seg)
+		} else {
+			pathsToCheck[i] = seg
+		}
+	}
+	filesToCheck := make([]string, len(segments))
+	for i, fname := range pathsToCheck {
+		filesToCheck[i] = "/" + path.Join(fname, "config.json")
+	}
+
+	for _, fname := range filesToCheck {
+		if fileExists(fname) {
+			return fname
+		}
+	}
+
+	return ""
 }

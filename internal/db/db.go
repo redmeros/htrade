@@ -2,7 +2,9 @@ package db
 
 import (
 	"errors"
+
 	"github.com/jinzhu/gorm"
+
 	// to jest zeby postgras  dzialal
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/redmeros/htrade/config"
@@ -14,13 +16,27 @@ var db *gorm.DB = nil
 
 // GetDB zwraca otwarta baze danych,
 // jesli nie ma dostepnej bazy danych zwraca blad,
-// jesli zwraca blad uzy GetDb razem z configiem
+// jesli zwraca blad uzyj GetDb razem z configiem
 // zeby stworzyc nowe polaczenie
 func GetDB() (*gorm.DB, error) {
 	if db != nil {
 		return db, nil
 	}
 	return nil, errors.New("No db to get")
+}
+
+// Zwraca baze danych, jeśli nei jest zainicjalizowana
+// próbuje ją zainicjować
+func TryGet() (*gorm.DB, error) {
+	d, err := GetDB()
+	if err == nil {
+		return d, err
+	}
+	config, err := config.TryLoad()
+	if err != nil {
+		return nil, err
+	}
+	return GetDb(config)
 }
 
 // GetDb zwraca wskaznik do bazy danych

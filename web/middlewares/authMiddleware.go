@@ -1,13 +1,13 @@
 package middlewares
 
 import (
+	"strings"
+
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"github.com/redmeros/htrade/models"
 	"github.com/redmeros/htrade/web/controllers"
 	"github.com/redmeros/htrade/web/helpers"
-	wm "github.com/redmeros/htrade/web/models"
-	"strings"
 )
 
 // AuthMiddleware jest guardianem
@@ -26,7 +26,7 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 		fullTknStr := vals[1]
-		claims := &wm.Claims{}
+		claims := &models.Claims{}
 
 		tkn, err := jwt.ParseWithClaims(fullTknStr, claims, func(token *jwt.Token) (interface{}, error) {
 			return []byte(cfg.Web.Secret), nil

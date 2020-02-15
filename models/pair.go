@@ -3,6 +3,8 @@ package models
 import (
 	"encoding/json"
 	"fmt"
+
+	"github.com/jinzhu/gorm"
 )
 
 // Pair to model dla pary walutowej `gorm:"unique_index:idx_pair_time"`
@@ -39,4 +41,15 @@ func (p Pair) MarshalJSON() ([]byte, error) {
 		Major: p.Major,
 		Name:  p.Name(),
 	})
+}
+
+// GetPairByName zwraca obiekt pary walutowej na podstawie
+// nazwy: np EURUSD
+func GetPairByName(db *gorm.DB, pair string) (*Pair, error) {
+	var result Pair
+	q := db.Where("CONCAT(pairs.major, pairs.minor) = ?", pair)
+	if err := q.First(&result).Error; err != nil {
+		return nil, err
+	}
+	return &result, nil
 }

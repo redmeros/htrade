@@ -8,7 +8,7 @@ import (
 	"github.com/redmeros/htrade/internal/logging"
 	"github.com/redmeros/htrade/models"
 	h "github.com/redmeros/htrade/web/helpers"
-	wmodels "github.com/redmeros/htrade/web/models"
+	// models "github.com/redmeros/htrade/web/models"
 )
 
 var loginOffset = time.Minute * 60
@@ -17,7 +17,7 @@ var loginOffset = time.Minute * 60
 // tzn podpisuje mu token jwt
 func Login(c *gin.Context) {
 	logger := logging.NewLogger("web.log")
-	var json wmodels.Credentials
+	var json models.Credentials
 	if err := c.ShouldBindJSON(&json); err != nil {
 		h.BadRequest(c, err.Error())
 		return
@@ -51,7 +51,7 @@ func Login(c *gin.Context) {
 	secret := []byte(cfg.Web.Secret)
 	issuedTime := time.Now()
 	expirationTime := issuedTime.Add(loginOffset)
-	claims := &wmodels.Claims{
+	claims := &models.Claims{
 		Username: dbuser.Username,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: expirationTime.Unix(),
@@ -101,7 +101,7 @@ func Refresh(c *gin.Context) {
 	secret := []byte(cfg.Web.Secret)
 	issuedTime := time.Now()
 	expirationTime := issuedTime.Add(loginOffset)
-	claims := &wmodels.Claims{
+	claims := &models.Claims{
 		Username: user.Username,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: expirationTime.Unix(),
