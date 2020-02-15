@@ -1,103 +1,91 @@
 package strategies
 
-import (
-	"container/list"
+import "fmt"
 
-	"github.com/redmeros/htrade/models"
-)
-
-// IAlgo to interfejs dla algorytmu
-type IAlgo interface {
-	OnTick(map[string]*models.Candle) ([]*AlgoResult, error)
+// Feeder jest ogólnym interfejsem który zasila
+// danymi Consumerów którzy są wpisani na listę
+// subskrypcyjną
+type Feeder interface {
+	Subscribe(consumer Consumer)
+	Unsubscribe(consumer Consumer)
+	Consumers() []Consumer
+	StartFeeding()
 }
 
-// IBroker to interfesj dla Brokera,
-// Broker odpowiedzialny jest za elementy które normalnie robi
-// prawdziwy broker:
-// 1. Obsługuje zlecenia
-// 2. Prowadzi 'księgowość dla rachunki
-// 3. Zamyka rachunek w razie bankrutu
-type IBroker interface {
-	// Orders zwraca zakolejkowane zlecenia
-	// Zlecenia zrealizowane są oznaczane jako realized = true
-	// i zwracane. Następnie są usuwane z kolejki
-	Orders() *list.List
-	Positions() *list.List
-	// Realize
-	RealizeOrders(map[string]*models.Candle) ([]*Position, []*Order, error)
-	PushOrders(orders []*Order)
+// SQLFeeder jest konkretnym typem implementującym
+// Feeder'a
+type SQLFeeder struct {
+	consumers []Consumer
 }
 
-// IWallet to interfejs dla portfela
-type IWallet interface {
-	UpdatePositions(orders []*Order)
-	Positions() []*Position
-	FilterAlgosResult([]*Position, []*AlgoResult) ([]*Order, error)
+// Subscribe dodaje do listy subskrybentów
+// consumera
+func (f *SQLFeeder) Subscribe(consumer Consumer) {
+	if consumer != nil {
+		f.consumers = append(f.consumers, consumer)
+	}
 }
 
-// Position zawiera informacje o pozycji
-type Position struct {
-	OpenOrder  *Order
-	CloseOrder *Order
-	Instrument string
-	Closed     bool
+// Unsubscribe usuwa z listy subskrybentów konkretnego subskrybenta
+func (f *SQLFeeder) Unsubscribe(consumer Consumer) {
+	for i, x := range f.consumers {
+		if x == consumer {
+			f.consumers = append(f.consumers[:i], f.consumers[i+1:]...)
+		}
+	}
 }
 
-// UnrealizedPL zwraca wartosc niezrealizowanych zyskow
-// strat z otwartej pozycji, na podstawie aktualnie przekazanej swieczki najgorsza mozliwa
-// cena dla sprzedazy bedzie to high, dla kupna bedzie to low
-// jezeli pozycja jest zamknieta
-// skorzystaj z metody RealizedPL
-func (pos *Position) UnrealizedPL(candle *models.Candle) float64 {
+// Consumers zwraca listę aktualnych
+// subskrybentów
+func (f *SQLFeeder) Consumers() []Consumer {
+	return f.consumers
+}
+
+// StartFeeding rozpoczyna karmienie danymi
+func (f *SQLFeeder) StartFeeding() {
 	panic("not implemented")
 }
 
-// RealizedPL zwraca wartosc zrealizowanych zyskow / strat
-// na podstawie roznicy pomiedzy zrealizowanym zleceniem
-// otwarcia i zamkniecia pozycji
-func (pos *Position) RealizedPL() float64 {
-	panic("not implemented")
+// Consumer jest interfejsem dla wszystkich elementów
+// które są w stanie obsługiwać dane
+type Consumer interface {
+	OnData(data interface{})
 }
 
-// Order jest structem zawierającym
-// informacje na temat zlecenie
-// jeżeli zlecenie zostało zrealizowane to `Realized` powinno być ustawione na true
-// `Direction` oznacza kierunek - ,1 - kupuj, -1 sprzedaj
-// Podejście z Direction -1, 0, 1 jest złe, bo np dla 0 - skąd
-// Broker ma wiedzieć czy ma sprzedać czy kupić/
-type Order struct {
-	ID              int
-	PositionID      int
-	PlacementTime   models.ITime
-	RealizationTime models.ITime
-	Instrument      string
-	Direction       OrderType
-	StopLoss        float64
-	TakeProfit      float64
-	Realized        bool
-	Quantity        float64
+// PrintingDataConsumer jest odbiorcą danych
+// który drukuje to co dostanie:D - stworzone do testów
+type PrintingDataConsumer struct {
 }
 
-// AlgoResult zawiera informacje o wynikach
-// z na danym etapie z algorytmu
-type AlgoResult struct {
-	Instrument string
-	Time       models.ITime
-	Result     int
+// OnData tylko wyświetla to co otrzymuje
+func (p *PrintingDataConsumer) OnData(data interface{}) {
+	fmt.Println(data)
 }
 
-// OrderType reprezentuje typ zlecenia
-type OrderType int
+// Algorithm zwraca doMoneyM info
+// czy kupować czy sprzedawać i ustawia limity
+type Algorithm interface {
+	OnData(data interface{})
+	SetMoneyM(moneyManager MoneyM)
+}
 
-const (
-	// Buy to zwykle zlecenie kupna
-	Buy OrderType = iota
-	// Sell to zwykle zlecenie sprzedazy (krotka pozycja)
-	Sell
-	// Close to zamkniecie pozycji
-	Close
-)
+// MoneyM zarządza wielkościami pozycji
+type MoneyM interface {
+	SetBroker(broker Broker)
+}
 
-func (o OrderType) String() string {
-	return [...]string{"Buy", "Sell", "Close"}[o]
+// Broker jest uruchamiany w razie potrzeby
+// przez MoneyM
+type Broker interface {
+	Results() interface{}
+}
+
+// Run jest główną funkcją uruchamiającą test
+func Run(dataFeeder Feeder, algo Algorithm, moneyM MoneyM, broker Broker) (interface{}, error) {
+	moneyM.SetBroker(broker)
+	algo.SetMoneyM(moneyM)
+	dataFeeder.Subscribe(algo)
+
+	dataFeeder.StartFeeding()
+	return broker.Results(), nil
 }
