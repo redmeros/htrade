@@ -7,7 +7,7 @@ type TestWallet struct {
 }
 
 // FilterAlgosResult to implementacja dla IWallet
-func (t *TestWallet) FilterAlgosResult([]*strategies.AlgoResult) []*strategies.Order {
+func (t *TestWallet) FilterAlgosResult([]*strategies.Position, []*strategies.AlgoResult) ([]*strategies.Order, error) {
 	panic("not implemented")
 }
 

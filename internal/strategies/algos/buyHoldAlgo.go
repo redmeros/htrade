@@ -13,6 +13,6 @@ type BuyAndHoldAglo struct {
 
 // OnTick Na pierwszym ticku ustawia w mapie na true i daje rekomendacje
 // kupna bez stop lossa
-func (a *BuyAndHoldAglo) OnTick(map[string]*models.Candle) []*strategies.AlgoResult {
+func (a *BuyAndHoldAglo) OnTick(map[string]*models.Candle) ([]*strategies.AlgoResult, error) {
 	panic("Not implemented")
 }

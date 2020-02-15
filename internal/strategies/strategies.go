@@ -1,21 +1,30 @@
 package strategies
 
 import (
+	"container/list"
+
 	"github.com/redmeros/htrade/models"
 )
 
 // IAlgo to interfejs dla algorytmu
 type IAlgo interface {
-	OnTick(map[string]*models.Candle) []*AlgoResult
+	OnTick(map[string]*models.Candle) ([]*AlgoResult, error)
 }
 
-// IBroker to interfesj dla Brokera
+// IBroker to interfesj dla Brokera,
+// Broker odpowiedzialny jest za elementy które normalnie robi
+// prawdziwy broker:
+// 1. Obsługuje zlecenia
+// 2. Prowadzi 'księgowość dla rachunki
+// 3. Zamyka rachunek w razie bankrutu
 type IBroker interface {
-	Orders() []*Order
-	RealizeOrders(map[string]*models.Candle) []*Order
-	// PushOrders odkłada zlecenia na stos,
-	// zlecenia zamkniecia sa powinny być realizowane
-	// cenie zamkniecia z danego ticku!
+	// Orders zwraca zakolejkowane zlecenia
+	// Zlecenia zrealizowane są oznaczane jako realized = true
+	// i zwracane. Następnie są usuwane z kolejki
+	Orders() *list.List
+	Positions() *list.List
+	// Realize
+	RealizeOrders(map[string]*models.Candle) ([]*Position, []*Order, error)
 	PushOrders(orders []*Order)
 }
 
@@ -23,7 +32,7 @@ type IBroker interface {
 type IWallet interface {
 	UpdatePositions(orders []*Order)
 	Positions() []*Position
-	FilterAlgosResult([]*AlgoResult) []*Order
+	FilterAlgosResult([]*Position, []*AlgoResult) ([]*Order, error)
 }
 
 // Position zawiera informacje o pozycji
@@ -53,17 +62,20 @@ func (pos *Position) RealizedPL() float64 {
 // Order jest structem zawierającym
 // informacje na temat zlecenie
 // jeżeli zlecenie zostało zrealizowane to `Realized` powinno być ustawione na true
-// `Direction` oznacza kierunek - ,1 - kupuj, -1 sprzedaj, 0 - zamknij
+// `Direction` oznacza kierunek - ,1 - kupuj, -1 sprzedaj
 // Podejście z Direction -1, 0, 1 jest złe, bo np dla 0 - skąd
 // Broker ma wiedzieć czy ma sprzedać czy kupić/
 type Order struct {
+	ID              int
+	PositionID      int
 	PlacementTime   models.ITime
 	RealizationTime models.ITime
 	Instrument      string
-	Direction       uint8
+	Direction       OrderType
 	StopLoss        float64
 	TakeProfit      float64
 	Realized        bool
+	Quantity        float64
 }
 
 // AlgoResult zawiera informacje o wynikach
@@ -72,4 +84,20 @@ type AlgoResult struct {
 	Instrument string
 	Time       models.ITime
 	Result     int
+}
+
+// OrderType reprezentuje typ zlecenia
+type OrderType int
+
+const (
+	// Buy to zwykle zlecenie kupna
+	Buy OrderType = iota
+	// Sell to zwykle zlecenie sprzedazy (krotka pozycja)
+	Sell
+	// Close to zamkniecie pozycji
+	Close
+)
+
+func (o OrderType) String() string {
+	return [...]string{"Buy", "Sell", "Close"}[o]
 }

@@ -63,6 +63,10 @@ func (t *ITime) UnmarshalJSON(s []byte) (err error) {
 	return nil
 }
 
+func Date(year int, month time.Month, day int, hour int, minute int, second int, nsec int, loc *time.Location) ITime {
+	return ITime(time.Date(year, month, day, hour, minute, second, nsec, loc))
+}
+
 // GetCandlesByPairName zwraca swieczki po nazwie - wszystkie
 func GetCandlesByPairName(db *gorm.DB, pair string) ([]Candle, error) {
 	var candles []Candle
