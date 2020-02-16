@@ -1,6 +1,8 @@
 package strategies
 
 import (
+	"time"
+
 	"github.com/redmeros/htrade/internal/db"
 	"github.com/redmeros/htrade/internal/logging"
 	"github.com/redmeros/htrade/models"
@@ -38,6 +40,7 @@ func (f *SQLFeeder) Consumers() []Consumer {
 	return f.consumers
 }
 
+// AddPair dodaje parę do analizowanych par
 func (f *SQLFeeder) AddPair(pair string) {
 	d, err := db.TryGet()
 	if err != nil {
@@ -59,16 +62,23 @@ func (f *SQLFeeder) StartFeeding() error {
 	if err != nil {
 		return err
 	}
-	var candles []*models.Candle
-	if err := d.Find(&candles).Error; err != nil {
-		return err
-	}
-
 	var series models.TimeSeries
-	for _, c := range candles {
-		series.AddCandle(c)
+
+	for _, pair := range f.pairs {
+		candles, err := models.GetCandlesByPairName(d, pair.Name())
+		if err != nil {
+			return err
+		}
+		for _, c := range candles {
+			series.AddCandle(&c)
+		}
 	}
 
-	for 
-
+	for key := series.Front(); key != nil; key = key.Next() {
+		curCandles := series.Get(key.Value.(time.Time))
+		for _, subscriber := range f.Consumers() {
+			subscriber.OnData(curCandles)
+		}
+	}
+	return nil
 }
