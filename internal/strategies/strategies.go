@@ -1,6 +1,10 @@
 package strategies
 
-import "github.com/redmeros/htrade/models"
+import (
+	"time"
+
+	"github.com/redmeros/htrade/models"
+)
 
 // Feeder jest ogólnym interfejsem który zasila
 // danymi Consumerów którzy są wpisani na listę
@@ -39,15 +43,22 @@ type MoneyM interface {
 type Broker interface {
 	OnMoneyMResults(results []*MMResult)
 	OnData(data interface{})
-	Results() []Results
+	Results() []*Result
 	CurrentPositions() *Positions
-	CurrentOrders()
+	CurrentOrders() []*Order
 	TotalValue() float64
 }
 
+// MMResult służy do przechowywania informacji
+// o rezultatach obliczeń MoneyManagera
 type MMResult struct {
-	Ticker *models.Pair
-	Value  float64
+	Ticker    *models.Pair
+	Value     float64
+	Direction int
+}
+
+// Order zawiera dane o zleceniu
+type Order struct {
 }
 
 // AlgoResult jest rezultatem wysylanym
@@ -61,28 +72,14 @@ type AlgoResult struct {
 	Rating int
 }
 
-type Position struct {
-	Ticker *models.Pair
-}
-
-type Positions struct {
-	positions []*Position
-}
-
-func (ps *Positions) Exists(p *models.Pair) bool {
-	for _, pos := range ps.positions {
-		if pos.Ticker.ID == p.ID {
-			return true
-		}
-	}
-	return false
-}
-
-type Results struct {
+// Result zawiera informacje
+// o rezultatach w danym dniu
+type Result struct {
+	Time time.Time
 }
 
 // Run jest główną funkcją uruchamiającą test
-func Run(dataFeeder Feeder, algo Algorithm, moneyM MoneyM, broker Broker) ([]Results, error) {
+func Run(dataFeeder Feeder, algo Algorithm, moneyM MoneyM, broker Broker) ([]*Result, error) {
 
 	moneyM.SetBroker(broker)
 	algo.SetMoneyM(moneyM)

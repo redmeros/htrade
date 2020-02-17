@@ -1,5 +1,7 @@
 package strategies
 
+// NoMoneyManagement to manager który ustala wielkość pozycji w oparciu
+// wartość całego portfela. Zakłada że jest tylko 5 pozycji w portfelu
 type NoMoneyManagement struct {
 	broker Broker
 }
@@ -13,7 +15,6 @@ func (mm *NoMoneyManagement) SetBroker(b Broker) {
 // i wystawia nowe zlecenia
 func (mm *NoMoneyManagement) OnAlgoResults(data []*AlgoResult) {
 	currentMoney := mm.broker.TotalValue()
-	// maxRiskInOnePos := currentMoney * 0.05
 	currentPositions := mm.broker.CurrentPositions()
 	positionSize := currentMoney / 5
 	var results []*MMResult
@@ -28,6 +29,6 @@ func (mm *NoMoneyManagement) OnAlgoResults(data []*AlgoResult) {
 		results = append(results, &mr)
 	}
 
-	// to musi być wywołane na końcu
+	// to musi być wywołane na końcu to jest zle - tutaj powinno być zwracanie rezultatów
 	mm.broker.OnMoneyMResults(results)
 }
