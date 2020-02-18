@@ -1,8 +1,6 @@
 package strategies
 
 import (
-	"fmt"
-
 	"github.com/redmeros/htrade/models"
 )
 
@@ -13,6 +11,17 @@ type Position struct {
 	OpenPrice  float64
 	ClosePrice float64
 	Quantity   int
+}
+
+// CurrentValue na podstawie podanej ceny oblicza
+// aktualna wartosc
+func (ps *Position) CurrentValue(currentPrice float64) float64 {
+	return ps.OpenPrice*float64(ps.Quantity) + ps.CurrentPL(currentPrice)
+}
+
+// CurrentPL zwraca aktualna wartosc pozycji
+func (ps *Position) CurrentPL(currentPrice float64) float64 {
+	return (currentPrice - ps.OpenPrice) * float64(ps.Quantity) * float64(ps.Direction)
 }
 
 // Positions to jest wrapper na tablicę pozycji
@@ -29,19 +38,4 @@ func (ps *Positions) Exists(p *models.Pair) bool {
 		}
 	}
 	return false
-}
-
-func (ps *Position) CurrentValue(t *models.Candle) (float64, error) {
-	if &t.Pair != ps.Ticker {
-		return -1, fmt.Errorf("Wrong candle (%s) for position ticker (%s)", t.Pair.Name(), ps.Ticker.Name())
-	}
-	curPrice := 0.0
-	// if ps.Direction > 0 {
-	// 	t.
-	// }
-	return curPrice, nil
-}
-
-func (ps *Position) CurrentPL(t *models.Candle) {
-
 }

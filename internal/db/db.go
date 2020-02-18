@@ -14,6 +14,9 @@ import (
 
 var db *gorm.DB = nil
 
+// var sslmode = true
+var sslmode = false
+
 // GetDB zwraca otwarta baze danych,
 // jesli nie ma dostepnej bazy danych zwraca blad,
 // jesli zwraca blad uzyj GetDb razem z configiem
@@ -43,9 +46,13 @@ func TryGet() (*gorm.DB, error) {
 func GetDb(config *config.Config) (*gorm.DB, error) {
 	log := logging.NewLogger("database.log")
 	if db == nil {
-		log.Debugf("Creating new db object with: %s", config.Db.GetPgConnString())
+		cstr := config.Db.GetPgConnString()
+		if sslmode == false {
+			cstr = cstr + " sslmode=disable"
+		}
+		log.Debugf("Creating new db object with: %s", cstr)
 		var err error
-		db, err = gorm.Open("postgres", config.Db.GetPgConnString())
+		db, err = gorm.Open("postgres", cstr)
 		if err != nil {
 			return nil, err
 		}
