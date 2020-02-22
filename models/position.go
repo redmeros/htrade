@@ -1,14 +1,12 @@
-package dirty
+package models
 
 import (
 	"time"
-
-	"github.com/redmeros/htrade/models"
 )
 
 // Position to reprezentacja pozycji
 type Position struct {
-	Ticker        *models.Pair
+	Ticker        *Pair
 	QuantityMajor float64
 	QuantityMinor float64
 
@@ -50,7 +48,7 @@ func (p *Position) PLC(currentPrice float64) float64 {
 }
 
 // NewPosition zwraca nowa pozycje
-func NewPosition(ticker *models.Pair, quantity float64, direction int8, rate float64, time time.Time) *Position {
+func NewPosition(ticker *Pair, quantity float64, direction int8, rate float64, time time.Time) *Position {
 	pos := Position{
 		Ticker:        ticker,
 		QuantityMajor: quantity * float64(direction),

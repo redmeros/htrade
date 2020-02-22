@@ -14,7 +14,7 @@ require (
 	github.com/gin-gonic/gin v1.5.0
 	github.com/go-playground/universal-translator v0.17.0 // indirect
 	github.com/google/glog v0.4.0 // indirect
-	github.com/gorilla/websocket v1.4.1 // indirect
+	github.com/gorilla/websocket v1.4.1
 	github.com/hhkbp2/go-logging v0.3.0
 	github.com/hhkbp2/go-strftime v0.0.0-20150709091403-d82166ec6782 // indirect
 	github.com/hhkbp2/testify v0.0.0-20150512090439-112845ebc045

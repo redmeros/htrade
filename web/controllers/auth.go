@@ -8,7 +8,6 @@ import (
 	"github.com/redmeros/htrade/internal/logging"
 	"github.com/redmeros/htrade/models"
 	h "github.com/redmeros/htrade/web/helpers"
-	// models "github.com/redmeros/htrade/web/models"
 )
 
 var loginOffset = time.Minute * 60

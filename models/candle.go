@@ -63,6 +63,7 @@ func (t *ITime) UnmarshalJSON(s []byte) (err error) {
 	return nil
 }
 
+// Date helper co Date'a robi ITime'a
 func Date(year int, month time.Month, day int, hour int, minute int, second int, nsec int, loc *time.Location) ITime {
 	return ITime(time.Date(year, month, day, hour, minute, second, nsec, loc))
 }

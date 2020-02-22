@@ -1,10 +1,9 @@
-package dirty
+package models
 
 import (
 	"testing"
 	"time"
 
-	"github.com/redmeros/htrade/models"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -12,7 +11,7 @@ var tt = time.Now()
 
 // https://www.oanda.com/us-en/trading/how-calculate-profit-loss/
 func TestProfit(t *testing.T) {
-	eurusd := models.Pair{
+	eurusd := Pair{
 		Major: "EUR",
 		Minor: "USD",
 	}
@@ -29,7 +28,7 @@ func TestProfit(t *testing.T) {
 }
 
 func TestLoss(t *testing.T) {
-	usdjpy := models.Pair{
+	usdjpy := Pair{
 		Major: "USD",
 		Minor: "JPY",
 	}
@@ -48,7 +47,7 @@ func TestUintToFloat(t *testing.T) {
 }
 
 func TestNewLongPosition(t *testing.T) {
-	usdjpy := models.Pair{
+	usdjpy := Pair{
 		Major: "USD",
 		Minor: "JPY",
 	}
@@ -59,7 +58,7 @@ func TestNewLongPosition(t *testing.T) {
 }
 
 func TestShort2(t *testing.T) {
-	eurusd := models.Pair{
+	eurusd := Pair{
 		Major: "EUR",
 		Minor: "USD",
 	}
@@ -68,7 +67,7 @@ func TestShort2(t *testing.T) {
 }
 
 func TestLong2(t *testing.T) {
-	eurgbp := models.Pair{
+	eurgbp := Pair{
 		Major: "EUR",
 		Minor: "GPB",
 	}
@@ -78,7 +77,7 @@ func TestLong2(t *testing.T) {
 }
 
 func TestNewShortPosition(t *testing.T) {
-	eurusd := models.Pair{
+	eurusd := Pair{
 		Major: "EUR",
 		Minor: "USD",
 	}
@@ -88,7 +87,7 @@ func TestNewShortPosition(t *testing.T) {
 }
 
 func TestLoss3(t *testing.T) {
-	usdjpy := models.Pair{
+	usdjpy := Pair{
 		Major: "USD",
 		Minor: "JPY",
 	}
@@ -101,7 +100,7 @@ func TestLoss3(t *testing.T) {
 }
 
 func TestProfit3(t *testing.T) {
-	eurusd := models.Pair{
+	eurusd := Pair{
 		Major: "EUR",
 		Minor: "USD",
 	}

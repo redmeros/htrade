@@ -1,0 +1,33 @@
+2020-02-15 14:45:10.565 DEBUG (logging.go:38) dataCollector Logger skonfigurowany
+2020-02-15 14:45:13.572 DEBUG (logging.go:38) dataCollector Logger skonfigurowany
+2020-02-15 14:45:13.573 ERROR (sqlfeeder.go:44) dataCollector Cannot connect to db: open config.json: no such file or directory
+2020-02-15 14:46:09.061 DEBUG (logging.go:38) dataCollector Logger skonfigurowany
+2020-02-15 14:46:44.159 DEBUG (logging.go:38) dataCollector Logger skonfigurowany
+2020-02-15 14:46:44.159 ERROR (sqlfeeder.go:44) dataCollector Cannot connect to db: open config.json: no such file or directory
+2020-02-15 14:46:57.739 DEBUG (logging.go:38) dataCollector Logger skonfigurowany
+2020-02-15 15:37:55.362 DEBUG (logging.go:38) dataCollector Logger skonfigurowany
+2020-02-15 15:37:58.175 DEBUG (logging.go:38) dataCollector Logger skonfigurowany
+2020-02-15 15:37:58.175 ERROR (sqlfeeder.go:44) dataCollector Cannot connect to db: open : no such file or directory
+2020-02-15 15:38:30.675 DEBUG (logging.go:38) dataCollector Logger skonfigurowany
+2020-02-15 15:38:46.206 DEBUG (logging.go:38) dataCollector Logger skonfigurowany
+2020-02-15 15:38:59.570 ERROR (sqlfeeder.go:44) dataCollector Cannot connect to db: open : no such file or directory
+2020-02-15 15:39:17.338 DEBUG (logging.go:38) dataCollector Logger skonfigurowany
+2020-02-15 15:39:17.338 ERROR (sqlfeeder.go:44) dataCollector Cannot connect to db: open : no such file or directory
+2020-02-15 15:40:11.394 DEBUG (logging.go:38) dataCollector Logger skonfigurowany
+2020-02-15 15:40:12.662 DEBUG (db.go:46) dataCollector Creating new db object with: user=htrade password=htrade host=localhost port=5432 dbname=htrade
+2020-02-15 15:40:12.678 DEBUG (db.go:52) dataCollector Migrations...
+2020-02-15 15:40:12.679 DEBUG (db.go:59) dataCollector Automigrating...
+2020-02-15 15:40:12.737 DEBUG (db.go:68) dataCollector Adding foreign key...
+2020-02-15 15:40:12.738 DEBUG (db.go:73) dataCollector All migrations done.
+2020-02-15 15:41:16.290 DEBUG (logging.go:38) dataCollector Logger skonfigurowany
+2020-02-15 15:41:16.291 DEBUG (db.go:46) dataCollector Creating new db object with: user=htrade password=htrade host=localhost port=5432 dbname=htrade
+2020-02-15 15:41:16.303 DEBUG (db.go:52) dataCollector Migrations...
+2020-02-15 15:41:16.303 DEBUG (db.go:59) dataCollector Automigrating...
+2020-02-15 15:41:16.366 DEBUG (db.go:68) dataCollector Adding foreign key...
+2020-02-15 15:41:16.367 DEBUG (db.go:73) dataCollector All migrations done.
+2020-02-15 15:41:45.156 DEBUG (logging.go:38) dataCollector Logger skonfigurowany
+2020-02-15 15:41:45.156 DEBUG (db.go:46) dataCollector Creating new db object with: user=htrade password=htrade host=localhost port=5432 dbname=htrade
+2020-02-15 15:41:45.170 DEBUG (db.go:52) dataCollector Migrations...
+2020-02-15 15:41:45.171 DEBUG (db.go:59) dataCollector Automigrating...
+2020-02-15 15:41:45.228 DEBUG (db.go:68) dataCollector Adding foreign key...
+2020-02-15 15:41:45.230 DEBUG (db.go:73) dataCollector All migrations done.
